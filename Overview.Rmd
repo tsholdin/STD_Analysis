@@ -1,0 +1,856 @@
+---
+title: "Project Overview"
+author: "Timothy Holdiness"
+date: "2022-08-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overall Project Goals
+
+*Show where the rise of STD's began in recent time. See which groups have
+higher rates.
+
+*Predict future rates of STDs.
+*Online dashboard
+
+
+## Data Sources
+
+The sources are listed with the raw URL and linked phrase methods.
+
+[CDC STD](https://www.cdc.gov/std/statistics/default.htm)
+
+<https://www.cdc.gov/std/statistics/default.htm>
+
+<https://www.cdc.gov/std/statistics/2019/data.zip>
+
+Louisiana Department of Health
+
+[Louisiana Department of Health: Public Health Data
+Portal](https://healthdata.ldh.la.gov/)
+
+<https://healthdata.ldh.la.gov/>
+
+[Louisiana Department of Health: Health
+Informatics](https://ldh.la.gov/page/2298)
+
+<https://ldh.la.gov/page/2298>
+
+## Actionable Items for Project
+
+## Identified Problems
+
+# Packages
+look into RCurl
+```{r load packages, message=FALSE}
+
+#NOTE: Warning messages related to package issues other than version
+#      creation are suppressed.  Change to messages=TRUE in order to see them.
+
+#library(tidyverse) 
+# the warnings seem negligible except for conflict
+library(dplyr)
+library(visdat)
+library(RSQLite)
+library(ggplot2)
+library(readr)
+library(UsingR)
+library(ggmosaic)
+library(tidyr)
+library(tidyverse)
+```
+
+## Data Import Methods
+
+*Importing Syphilis data.
+```{r import Syph csv, message=FALSE}
+CSyph_MissedPrevention_F_1519_CDC = read_csv("Congenital Syphilis - Missed Prevention Opportunities Among Mothers of Infants w.csv")
+CSyph_Vitals_1519_CDC = read_csv("Congenital Syphilis - Number of Reported Cases by Vital Status and Clinical Sign.csv")
+CSyph_RateBirthYearState_19_CDC = read_csv("Congenital Syphilis - Rates of Reported Cases by Year of Birth and State, United.csv")
+CSyph_RateBirthYearRace_1019_CDC = read_csv("Congenital Syphilis - Rates of Reported Cases by Year of Birth, Race, and Hispan.csv")
+PSSYph_DistributionSexPartners_19_CDC = read_csv("Primary and Secondary Syphilis - Distribution of Cases by Sex and Sex of Sex Par.csv")
+PSSyph_RateMSMState_19_CDC = read_csv("Primary and Secondary Syphilis - Estimated Rates of Reported Cases Among MSM by .csv")
+PSSyph_SexPartners_ReportSource_19_CDC = read_csv("Primary and Secondary Syphilis - Percentage of Reported Cases by Sex, Sex of Sex.csv")
+PSSyph_RatioSexRaceRegion_19_CDC = read_csv("Primary and Secondary Syphilis - Rate Ratios by Sex, Race and Hispanic Ethnicity.csv")
+PSSyph_RateAgeGroup_F1544_1019_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases Among Females Aged 15-4.csv")
+PSSyph_RateState_F_19_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases Among Females by State,.csv")
+PSSyph_RateAgeGroup_M1544_1019_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases Among Males Aged 15-44 .csv")
+PSSyph_RateAgeGroupSex_19_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by Age Group and Sex, U.csv")
+PSSyph_RateCounty_19_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by County, United State.csv")
+PSSyph_RateRace_1519_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by Race and Hispanic Et.csv")
+PSSyph_RateRegion_1019_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by Region, United State.csv")
+PSSyph_RateSexRatio_9019_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by Sex and Male-to-Fema.csv")
+PSSyph_RateSex_1019_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by Sex, United States, .csv")
+PSSyph_RateState_19_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by State, United States.csv")
+PSSyph_ReportSourceSex_1019_CDC = read_csv("Primary and Secondary Syphilis - Reported Cases by Reporting Source and Sex, Uni.csv")
+PSSyph_SexPartners31States_1519_CDC = read_csv("Primary and Secondary Syphilis - Reported Cases by Sex and Sex of Sex Partners, .csv")
+PSSyph_SexPartnersHIV_19_CDC = read_csv("Primary and Secondary Syphilis - Reported Cases by Sex, Sex of Sex Partners, and.csv")
+PSSyph_SexPartnersRace_19_CDC = read_csv("Primary and Secondary Syphilis - Reported Cases by Sex, Sex of Sex Partners, Rac.csv")
+Syph_RateStage_4119_CDC = read_csv("Syphilis - Rates of Reported Cases by Stage of Infection, United States, 1941-20.csv")
+Syph_RateStage_1019_CDC = read_csv("Syphilis - Rates of Reported Cases by Stage of Infection, United States, 2010-20.csv")
+```
+
+*Did not work. Produced Error.
+```{r import Syph csv 2}
+#CSyph_BirthYear_F1544_1019_CDC = read_csv("Congenital Syphilis - Reported Cases by Year of Birth and Rates of Reported Case.csv")
+```
+
+
+
+*Importing Chlamydia data.
+```{r import Chlamydia csv, message=FALSE}
+Chlam_ReportSource_F_1019_CDC = read_csv("Chlamydia - Percentage of Reported Cases Among Females by Reporting Source, Unit.csv")
+Chlam_ReportSource_M_1019_CDC = read_csv("Chlamydia - Percentage of Reported Cases Among Males by Reporting Source, United.csv")
+Chlam_JobTraining_F1624_19_CDC = read_csv("Chlamydia - Prevalence Among Females Aged 16-24 Years Entering the National Job .csv")
+Chlam_JobTraining_M1624_19_CDC = read_csv("Chlamydia - Prevalence Among Males Aged 16-24 Years Entering the National Job Tr.csv")
+Chlam_Clinic_19_CDC = read_csv("Chlamydia - Proportion of STD Clinic Patients Testing Positive by Age Group, Sex.csv")
+Chlam_RateState_F1524_19_CDC = read_csv("Chlamydia - Rates of Reported Cases Among Females Aged 15-24 Years by State, Uni.csv")
+Chlam_RateAgeGroup_F1544_1019_CDC = read_csv("Chlamydia - Rates of Reported Cases Among Females Aged 15-44 Years by Age Group,.csv")
+Chlam_RateState_F_19_CDC = read_csv("Chlamydia - Rates of Reported Cases Among Females by State, United States and Te.csv")
+Chlam_RateState_M1524_19_CDC = read_csv("Chlamydia - Rates of Reported Cases Among Males Aged 15-24 Years by State, Unite.csv")
+Chlam_RateAgeGroup_M1544_1019_CDC = read_csv("Chlamydia - Rates of Reported Cases Among Males Aged 15-44 Years by Age Group, U.csv")
+Chlam_RateAgeGroupSex_19_CDC = read_csv("Chlamydia - Rates of Reported Cases by Age Group and Sex, United States, 2019.csv")
+Chlam_RateCounty_19_CDC = read_csv("Chlamydia - Rates of Reported Cases by County, United States, 2019.csv")
+Chlam_RateRaceSex_19_CDC = read_csv("Chlamydia - Rates of Reported Cases by Race and Hispanic Ethnicity and Sex, Unit.csv")
+Chlam_RateRace_1519_CDC = read_csv("Chlamydia - Rates of Reported Cases by Race and Hispanic Ethnicity, United State.csv")
+Chlam_RateRegion_1019_CDC = read_csv("Chlamydia - Rates of Reported Cases by Region, United States, 2010-2019.csv")
+Chlam_RateSex_0019_CDC = read_csv("Chlamydia - Rates of Reported Cases by Sex, United States, 2000-2019.csv")
+Chlam_RateState_19_CDC = read_csv("Chlamydia - Rates of Reported Cases by State, United States and Territories, 201.csv")
+
+```
+
+
+
+*Importing Gonorrhea data
+```{r import gono data, message=FALSE}
+Gono_DistributionDrugs_8819_CDC = read_csv("Distribution of Primary Antimicrobial Drugs Used to Treat Gonorrhea Among Partic.csv")
+Gono_ProportionSexPartners_19_CDC = read_csv("Estimated Proportion of MSM, MSW, and Women Among Gonorrhea Cases by Jurisdictio.csv")
+Gono_ProportionTreatedJurisdiction_19_CDC = read_csv("Gonorrhea - Estimated Proportion of Cases Treated with Recommended Regimen by Juris.csv")
+Gono_RateSexPartners_1019_CDC = read_csv("Gonorrhea - Estimated Rates of Reported Gonorrhea Cases by MSM, MSW, and Women, .csv")
+Gono_ReportSource_F_1019_CDC = read_csv("Gonorrhea - Percentage of Reported Cases Among Females by Reporting Source, Unit.csv")
+Gono_ReportSource_M_1019_CDC = read_csv("Gonorrhea - Percentage of Reported Cases Among Males by Reporting Source, United.csv")
+Gono_JobTraining_F1624_19_CDC = read_csv("Gonorrhea - Prevalence Among Females Aged 16-24 Years Entering the National Job .csv")
+Gono_JobTraining_M1624_19_CDC = read_csv("Gonorrhea - Prevalence Among Males Aged 16-24 Years Entering the National Job Tr.csv")
+Gono_Clinic_19_CDC = read_csv("Gonorrhea - Proportion of STD Clinic Patients Testing Positive by Age Group, Sex.csv")
+Gono_RateRace_19_CDC = read_csv("Gonorrhea - Rate of Reported Cases by Race and Hispanic Ethnicity and Sex, Unite.csv")
+Gono_RatioRaceRegion_19_CDC = read_csv("Gonorrhea - Rate Ratios by Race and Hispanic Ethnicity and Region, United States.csv")
+Gono_RateState_F1524_19_CDC = read_csv("Gonorrhea - Rates of Reported Cases Among Females Aged 15-24 Years by State, Uni.csv")
+Gono_RateAgeGroup_F1544_1019_CDC = read_csv("Gonorrhea - Rates of Reported Cases Among Females Aged 15-44 Years by Age Group,.csv")
+Gono_RateState_F_19_CDC = read_csv("Gonorrhea - Rates of Reported Cases Among Females by State, United States and Te.csv")
+Gono_RateState_M1524_19_CDC = read_csv("Gonorrhea - Rates of Reported Cases Among Males Aged 15-24 Years by State, Unite.csv")
+Gono_RateAgeGroup_M1544_1019_CDC = read_csv("Gonorrhea - Rates of Reported Cases Among Males Aged 15-44 Years by Age Group, U.csv")
+Gono_RateAgeGroupSex_19_CDC = read_csv("Gonorrhea - Rates of Reported Cases by Age Group and Sex, United States, 2019.csv")
+Gono_RateCounty_19_CDC = read_csv("Gonorrhea - Rates of Reported Cases by County, United States, 2019.csv")
+Gono_RateRace_1519_CDC = read_csv("Gonorrhea - Rates of Reported Cases by Race and Hispanic Ethnicity, United State.csv")
+Gono_RateRegion_1019_CDC = read_csv("Gonorrhea - Rates of Reported Cases by Region, United States, 2010-2019.csv")
+Gono_RateSex_1019_CDC = read_csv("Gonorrhea - Rates of Reported Cases by Sex, United States, 2010-2019.csv")
+Gono_RateState_19_CDC = read_csv("Gonorrhea - Rates of Reported Cases by State, United States and Territories, 201.csv")
+Gono_RateYear_4119_CDC = read_csv("Gonorrhea - Rates of Reported Cases by Year, United States, 1941-2019.csv")
+Gono_PercentMICs_1019_CDC = read_csv("Neisseria gonorrhoeae - Percentage of Isolates with Elevated Minimum Inhibitory .csv")
+Gono_PercentMSMClinic_8919_CDC = read_csv("Neisseria gonorrhoeae - Percentage of Urethral Isolates Obtained from MSM Attend.csv")
+Gono_PercentMICsSexPartners_1019_CDC = read_csv("Neisseria gonorrhoeae - Percentage of Urethral Isolates with Elevated Minimum In.csv")
+Gono_PrevalenceDrugMICs_0019_CDC = read_csv("Neisseria gonorrhoeae - Prevalence of Tetracycline, Penicillin, or Ciprofloxacin.csv")
+
+```
+
+
+```{r import multiple data, message=FALSE}
+Mult_RateInfantYearSource_1519_CDC = read_csv("Chlamydia and Gonorrhea - Rates of Reported Cases Among Infants Under 1 Year.csv")
+Mult_HIVStatus_19_CDC = read_csv("Proportion of MSM Attending STD Clinics with Primary and Secondary Syphilis, Uro.csv")
+Mult_MIC_19_CDC = read_csv("Resistance or Elevated Minimum Inhibitory Concentration (MIC) Patterns of Neisse.csv")
+
+```
+
+
+## Binding and Plotting 2019 data
+
+```{r}
+STD_RateRegion_1019_CDC = rbind(Chlam_RateRegion_1019_CDC, Gono_RateRegion_1019_CDC, PSSyph_RateRegion_1019_CDC)
+```
+This combined them but got rid of which is which STD. Going to add a column.
+
+I will mutate using dplyr to add columns identifying the STD for each table. 
+
+
+*Mutate to add columns
+I will mutate using dplyr to add columns identifying the STD for each table.
+```{r}
+Chlams_RateRegion_1019_CDC <- mutate(Chlam_RateRegion_1019_CDC, STD = "Chlamydia")
+Gonos_RateRegion_1019_CDC <- mutate(Gono_RateRegion_1019_CDC, STD = "Gonorrhea")
+PSSyphs_RateRegion_1019_CDC <- mutate(PSSyph_RateRegion_1019_CDC, STD = "Primary and Secondary Syphilis")
+```
+
+*Then Bind
+```{r}
+STD_RateRegion_1019_CDC = rbind(Chlams_RateRegion_1019_CDC, Gonos_RateRegion_1019_CDC, PSSyphs_RateRegion_1019_CDC)
+```
+
+```{r Visualize Scatterplot}
+ggplot(STD_RateRegion_1019_CDC, aes(x=STD, y=Cases)) + 
+  geom_boxplot(color="orange", fill="white") +
+  theme_classic() +
+  ggtitle("Boxplot of Sexually Transmitted Disease Cases by STD") +
+  xlab("STD") + ylab("Cases")
+
+ggplot(STD_RateRegion_1019_CDC, aes(x=STD, y=Cases, color=Region)) + 
+  geom_boxplot() +
+  theme_classic() +
+  ggtitle("Boxplot of Sexually Transmitted Disease Cases by STD and Region") +
+  xlab("STD") + ylab("Cases (x10^5)")
+```
+
+```{r mutate and bind STD_RateCounty_19_CDC}
+Chlams_RateCounty_19_CDC <- mutate(Chlam_RateCounty_19_CDC, STD = "Chlamydia")
+Gonos_RateCounty_19_CDC <- mutate(Gono_RateCounty_19_CDC, STD = "Gonorrhea")
+PSSyphs_RateCounty_19_CDC <- mutate(PSSyph_RateCounty_19_CDC, STD = "Primary and Secondary Syphilis")
+
+STD_RateCounty_19_CDC = rbind(Chlams_RateCounty_19_CDC, Gonos_RateCounty_19_CDC, PSSyphs_RateCounty_19_CDC)
+
+colnames(STD_RateCounty_19_CDC) <- c("Year", "StateFIPS", "CountyFIPS", "State", "County", "Cases", "Population", "Rate", "Group", "STD")
+```
+
+
+
+```{r Visualize STD_RateCounty_19_CDC}
+ggplot(STD_RateCounty_19_CDC, aes(x=State, y=Cases, color=STD)) + 
+  geom_point() +
+  theme_classic()
+```
+
+
+*STD_Clinic_19_CDC
+After mutating to add the STD column, I must rename the Gonos_Clinic_19_CDC Percent Positive to just Positive to get them to match. 
+```{r}
+Chlams_Clinic_19_CDC <- mutate(Chlam_Clinic_19_CDC, STD = "Chlamydia")
+Gonos_Clinic_19_CDC <- mutate(Gono_Clinic_19_CDC, STD = "Gonorrhea")
+colnames(Gonos_Clinic_19_CDC) <- c("Age Group", "Group", "Positive", "STD")
+STD_Clinic_19_CDC = rbind(Chlams_Clinic_19_CDC, Gonos_Clinic_19_CDC)
+```
+Must change Positive variable to num not chr.
+
+*STD_JobTraining_1624_19_CDC PREVALENCE PERCENT
+Must add the STD column as well as the Sex column. 
+```{r mutate and bind JobTraining}
+Chlams_JobTraining_F1624_19_CDC <- mutate(Chlam_JobTraining_F1624_19_CDC, STD = "Chlamydia", Sex = "Female")
+Chlams_JobTraining_M1624_19_CDC <- mutate(Chlam_JobTraining_M1624_19_CDC, STD = "Chlamydia", Sex = "Male")
+
+Gonos_JobTraining_F1624_19_CDC <- mutate(Gono_JobTraining_F1624_19_CDC, STD = "Gonorrhea", Sex = "Female")
+Gonos_JobTraining_M1624_19_CDC <- mutate(Gono_JobTraining_M1624_19_CDC, STD = "Gonorrhea", Sex = "Male")
+
+STD_JobTraining_1624_19_CDC = rbind(Chlams_JobTraining_F1624_19_CDC, Chlams_JobTraining_M1624_19_CDC, Gonos_JobTraining_F1624_19_CDC, Gonos_JobTraining_M1624_19_CDC)
+```
+Must change Prevalence and Prevalence Group from chr to num.
+
+*STD_RateRace_1519_CDC
+Must change column name from Race/Hispanic Ethnicity to just Race.
+```{r mutate and bind STD_RateRace_1519_CDC}
+Chlams_RateRace_1519_CDC <- mutate(Chlam_RateRace_1519_CDC, STD = "Chlamydia")
+Gonos_RateRace_1519_CDC <- mutate(Gono_RateRace_1519_CDC, STD = "Gonorrhea")
+PSSyphs_RateRace_1519_CDC <- mutate(PSSyph_RateRace_1519_CDC, STD = "Primary and Secondary Syphilis")
+
+STD_RateRace_1519_CDC = rbind(Chlams_RateRace_1519_CDC, Gonos_RateRace_1519_CDC, PSSyphs_RateRace_1519_CDC)
+
+colnames(STD_RateRace_1519_CDC) <- c("Year", "Race", "Cases", "Population", "Rate", "STD")
+```
+
+```{r Visualize STD_RateRace_1519_CDC}
+ggplot(STD_RateRace_1519_CDC, aes(x=Year, y=Rate, color=Race)) + 
+  geom_point() +
+  theme_classic() +
+  ggtitle("Plot of STD Rates by Race and Year") +
+  xlab("Year") + ylab("STD Rate")
+
+```
+
+*STD_ReportSource_1019_CDC
+Must add columns STD and Sex. Must also change column name from Reporting Source to Source.
+```{r mutate and bind STD_ReportingSource_1019_CDC}
+Chlams_ReportSource_F_1019_CDC <- mutate(Chlam_ReportSource_F_1019_CDC, STD = "Chlamydia", Sex = "Female")
+Chlams_ReportSource_M_1019_CDC <- mutate(Chlam_ReportSource_M_1019_CDC, STD = "Chlamydia", Sex = "Male")
+
+Gonos_ReportSource_F_1019_CDC <- mutate(Gono_ReportSource_F_1019_CDC, STD = "Gonorrhea", Sex = "Female")
+Gonos_ReportSource_M_1019_CDC <- mutate(Gono_ReportSource_M_1019_CDC, STD = "Gonorrhea", Sex = "Male")
+
+STD_ReportSource_1019_CDC = rbind(Chlams_ReportSource_F_1019_CDC, Chlams_ReportSource_M_1019_CDC, Gonos_ReportSource_F_1019_CDC, Gonos_ReportSource_M_1019_CDC)
+
+colnames(STD_ReportSource_1019_CDC) <- c("Year", "Source", "Cases", "Percent", "STD", "Sex")
+```
+
+
+```{r Visualize STD_ReportSource_1019_CDC}
+ggplot(STD_ReportSource_1019_CDC, aes(x=Source, y=Cases, color=Sex)) + 
+  geom_point() +
+  theme_dark() +
+  ggtitle("Plot of STD Cases by Reporting Source and Sex in 2019") +
+  xlab("Reporting Source") + ylab("STD Cases")
+
+```
+
+
+*Rate Sex
+Gono and PSSyph have 2010-2019, while Chlam has 2000-2019. 
+Must take only 2010-2019 for Chlam_RateSex_0019_CDC.
+
+*STD_RateAgeGroup_1544_1019_CDC
+Mutated and binded. 
+Added columns STD and Sex. 
+Renamed column Age Group to Group.
+```{r mutate and bind STD_RateAgeGroup_1544_1019_CDC}
+Chlams_RateAgeGroup_F1544_1019_CDC <- mutate(Chlam_RateAgeGroup_F1544_1019_CDC, STD = "Chlamydia", Sex = "Female")
+Chlams_RateAgeGroup_M1544_1019_CDC <- mutate(Chlam_RateAgeGroup_M1544_1019_CDC, STD = "Chlamydia", Sex = "Male")
+
+Gonos_RateAgeGroup_F1544_1019_CDC <- mutate(Gono_RateAgeGroup_F1544_1019_CDC, STD = "Gonorrhea", Sex = "Female")
+Gonos_RateAgeGroup_M1544_1019_CDC <- mutate(Gono_RateAgeGroup_M1544_1019_CDC, STD = "Gonorrhea", Sex = "Male")
+
+PSSyphs_RateAgeGroup_F1544_1019_CDC <- mutate(PSSyph_RateAgeGroup_F1544_1019_CDC, STD = "Primary and Secondary Syphilis", Sex = "Female")
+PSSyphs_RateAgeGroup_M1544_1019_CDC <- mutate(PSSyph_RateAgeGroup_M1544_1019_CDC, STD = "Primary and Secondary Syphilis", Sex = "Male")
+
+STD_RateAgeGroup_1544_1019_CDC = rbind(Chlams_RateAgeGroup_F1544_1019_CDC, Chlams_RateAgeGroup_M1544_1019_CDC, Gonos_RateAgeGroup_F1544_1019_CDC, Gonos_RateAgeGroup_M1544_1019_CDC, PSSyphs_RateAgeGroup_F1544_1019_CDC, PSSyphs_RateAgeGroup_M1544_1019_CDC)
+
+colnames(STD_RateAgeGroup_1544_1019_CDC) <- c("Year", "Sex", "Group", "Cases", "Population", "Rate", "STD")
+```
+
+*Rate State
+Chlam and Gono is aged 15-24 while PSSyph has no age. 
+
+*STD_RateAgeGroupSex_19_CDC
+Changed column Age Group to Group.
+```{r mutate and bind STD_RateAgeGroupSex_19_CDC}
+Chlams_RateAgeGroupSex_19_CDC <- mutate(Chlam_RateAgeGroupSex_19_CDC, STD = "Chlamydia")
+Gonos_RateAgeGroupSex_19_CDC <- mutate(Gono_RateAgeGroupSex_19_CDC, STD = "Gonorrhea")
+PSSyphs_RateAgeGroupSex_19_CDC <- mutate(PSSyph_RateAgeGroupSex_19_CDC, STD = "Primary and Secondary Syphilis")
+
+STD_RateAgeGroupSex_19_CDC = rbind(Chlams_RateAgeGroupSex_19_CDC, Gonos_RateAgeGroupSex_19_CDC, PSSyphs_RateAgeGroupSex_19_CDC)
+
+colnames(STD_RateAgeGroupSex_19_CDC) <- c("Year", "Group", "Sex", "Cases", "Population", "Rate", "STD")
+```
+
+Need to fix Group and change it from chr to num.
+```{r Visualize STD_RateAgeGroupSex_19_CDC}
+ggplot(STD_RateAgeGroupSex_19_CDC, aes(x=Sex, y=Cases, color=STD)) +
+  geom_point() +
+  theme_dark() +
+  ggtitle("Plot of STD Cases by Sex and STD type in 2019") +
+  xlab("Sex") + ylab("STD Cases")
+
+```
+*STD_RateState_19_CDC
+
+```{r mutate and bind STD_RateState_19_CDC}
+Chlams_RateState_19_CDC <- mutate(Chlam_RateState_19_CDC, STD = "Chlamydia")
+Gonos_RateState_19_CDC <- mutate(Gono_RateState_19_CDC, STD = "Gonorrhea")
+PSSyphs_RateState_19_CDC <- mutate(PSSyph_RateState_19_CDC, STD = "Primary and Secondary Syphilis")
+
+STD_RateState_19_CDC = rbind(Chlams_RateState_19_CDC, Gonos_RateState_19_CDC, PSSyphs_RateState_19_CDC)
+
+colnames(STD_RateState_19_CDC) <- c("Year", "FIPS", "USPS", "State", "Cases", "Population", "Rate", "Group", "STD")
+```
+
+
+Need to change group from chr to num.
+```{r Visualize STD_RateState_19_CDC}
+ggplot(STD_RateState_19_CDC, aes(x=USPS, y=Cases, color=STD)) +
+  geom_point() +
+  theme_dark() +
+  ggtitle("Plot of STD Cases by State and STD type in 2019") +
+  xlab("State USPS Abbr.") + ylab("STD Cases")
+
+```
+
+
+*STD_RateState_F_19_CDC
+change group from chr to num.
+```{r mutate and bind STD_RateState_F_19_CDC}
+Chlams_RateState_F_19_CDC <- mutate(Chlam_RateState_F_19_CDC, STD = "Chlamydia")
+Gonos_RateState_F_19_CDC <- mutate(Gono_RateState_F_19_CDC, STD = "Gonorrhea")
+PSSyphs_RateState_F_19_CDC <- mutate(PSSyph_RateState_F_19_CDC, STD = "Primary and Secondary Syphilis")
+
+STD_RateState_F_19_CDC = rbind(Chlams_RateState_F_19_CDC, Gonos_RateState_F_19_CDC, PSSyphs_RateState_F_19_CDC)
+
+colnames(STD_RateState_F_19_CDC) <- c("Year", "FIPS", "USPS", "State", "State", "Cases", "Population", "Rate", "Group", "STD")
+```
+
+*STD_RateState_1524_19_CDC
+
+```{r mutate and bind STD_RateState_1524_19_CDC}
+Chlams_RateState_F1524_19_CDC <- mutate(Chlam_RateState_F1524_19_CDC, STD = "Chlamydia")
+Chlams_RateState_M1524_19_CDC <- mutate(Chlam_RateState_M1524_19_CDC, STD = "Chlamydia")
+
+Gonos_RateState_F1524_19_CDC <- mutate(Gono_RateState_F1524_19_CDC, STD = "Gonorrhea")
+Gonos_RateState_M1524_19_CDC <- mutate(Gono_RateState_M1524_19_CDC, STD = "Gonorrhea")
+
+STD_RateState_1524_19_CDC = rbind(Chlams_RateState_F1524_19_CDC, Chlams_RateState_M1524_19_CDC, Gonos_RateState_F1524_19_CDC, Gonos_RateState_M1524_19_CDC)
+
+colnames(STD_RateState_1524_19_CDC) <- c("Year", "FIPS", "USPS", "State", "Sex", "GroupAge", "Cases", "Population", "Rate", "GroupRate", "STD")
+```
+
+plot(Syph_RateStage_4119_CDC$Year, Syph_RateStage_4119_CDC$Cases)
+
+
+
+# Upload 2020 data
+
+```{r import Chlamydia csv 2020, message=FALSE}
+#Chlamydia
+Chlam_ClinicPositiveAgeSexPartners_20_CDC = read_csv("Chlamydia - Proportion of STD Clinic Patients Testing Positive by Age Group Sex .csv")
+Chlam_RatioSexRaceRegion_1524_20_CDC = read_csv("Chlamydia - Rate Ratios Among Persons Aged 15-24 Years by Sex Race Hispanic Ethn.csv")
+Chlam_RateState_M1524_20_CDC = read_csv("Chlamydia - Rates of Reported Cases Among Men Aged 15-24 Years by State United S.csv")
+Chlam_RateState_F1524_20_CDC = read_csv("Chlamydia - Rates of Reported Cases Among Women Aged 15-24 Years by State United.csv")
+Chlam_RateAgeGroup_F1544_1120_CDC = read_csv("Chlamydia - Rates of Reported Cases Among Women Aged 15-44 Years by Age Group Un.csv")
+Chlam_RateState_F_20_CDC = read_csv("Chlamydia - Rates of Reported Cases Among Women by State United States and Terri.csv")
+Chlam_RateCounty_F_1120_CDC = read_csv("Chlamydia - Rates of Reported Cases Among Women by State United States and Terri4.csv")
+Chlam_RateAgeSex_20_CDC = read_csv("Chlamydia - Rates of Reported Cases by Age Group and Sex United States 2020 .csv")
+Chlam_RateCounty_20_CDC = read_csv("Chlamydia - Rates of Reported Cases by County United States 2020 .csv")
+Chlam_RateRaceSex_20_CDC = read_csv("Chlamydia - Rates of Reported Cases by Race Hispanic Ethnicity and Sex United St.csv")
+Chlam_RateRace_1620_CDC = read_csv("Chlamydia - Rates of Reported Cases by Race Hispanic Ethnicity United States 201.csv")
+Chlam_RateRegion_1120_CDC = read_csv("Chlamydia - Rates of Reported Cases by Region United States 2011-2020 .csv")
+Chlam_RateSex_1120_CDC = read_csv("Chlamydia - Rates of Reported Cases by Sex United States 2011-2020 .csv")
+Chlam_RateState_11and20_CDC = read_csv("Chlamydia - Rates of Reported Cases by State United States and Territories 2011 .csv")
+Chlam_RateState_1120_CDC = read_csv("Chlamydia - Rates of Reported Cases by State United States and Territories 2011-.csv")
+Chlam_RateState_20_CDC = read_csv("Chlamydia - Rates of Reported Cases by State United States and Territories 2020 .csv")
+Chlam_RateYear_8420_CDC = read_csv("Chlamydia - Rates of Reported Cases by Year United States 1984-2020 .csv")
+Chlam_PercentWeek_1920_CDC = read_csv("Chlamydia - Reported 2020 Cases as a Percentage of 2019 by MMWR Week United Stat.csv")
+Chlam_ReportSource_20_CDC = read_csv("Chlamydia - Reported Cases by Reporting Source and Sex United States 2011-2020 .csv")
+```
+
+```{r import Syphilis csv 2020, message=FALSE}
+#Congenital Syphilis
+CSyph_RateRaceMother_20_CDC = read_csv("Congenital Syphilis - Case Counts and Rates of Reported Cases by Race Hispanic E.csv")
+CSyph_MissedPrevention_F_1620_CDC = read_csv("Congenital Syphilis - Missed Prevention Opportunities among Mothers Delivering I.csv")
+CSyph_RateState_1120_CDC = read_csv("Congenital Syphilis - Rates of Reported Cases by State United States and Ter (1).csv")
+CSyph_RateState_11and20_CDC = read_csv("Congenital Syphilis - Rates of Reported Cases by State United States and Ter (2).csv")
+CSyph_RateBirthYearState_20_CDC = read_csv("Congenital Syphilis - Rates of Reported Cases by Year of Birth and State United .csv")
+CSyph_RateBirthYearRace_1620_CDC = read_csv("Congenital Syphilis - Rates of Reported Cases by Year of Birth Race Hispanic Eth.csv")
+CSyph_RateBirthYear_4120_CDC = read_csv("Congenital Syphilis - Rates of Reported Cases by Year of Birth United States 194.csv")
+CSyph_RateState_1120_CDC = read_csv("Congenital Syphilis - Reported Cases by State United States and Territories  (1).csv")
+CSyph_Vitals_1620_CDC = read_csv("Congenital Syphilis - Reported Cases by Vital Status and Clinical Signs and Symp.csv")
+CSyph_MultipleYearBirth_1544_CDC = read_csv("Congenital Syphilis - Reported Cases by Year of Birth and Rates of Reported Case2.csv")
+CSyph_InfantDeath_1120_CDC = read_csv("Congenital Syphilis - Reported Stillbirths and Infant Deaths United States 2011-.csv")
+#Primary and Secondary Syphilis
+#PSSyph_DistributionGender_20_CDC = read_csv("Primary and Secondary Syphilis - Distribution of Cases by Gender Identity 16 Sta.csv")
+PSSyph_DistributionSexPartner_20_CDC = read_csv("Primary and Secondary Syphilis - Distribution of Cases by Sex and Sex of Sex Par2.csv")
+PSSyph_RateMSM_20_CDC = read_csv("Primary and Secondary Syphilis - Estimated Rates of Reported Cases Among MSM by 2.csv")
+PSSyph_RateRatioSexRaceRegion_20_CDC = read_csv("Primary and Secondary Syphilis - Rate Ratios by Sex Race Hispanic Ethnicity and .csv")
+PSSyph_RateAgeGroup_M1544_1120_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases Among Men Aged 15-44 Ye.csv")
+PSSyph_RateAgeGroup_F1544_1120_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases Among Women Aged 15 (1).csv")
+PSSyph_RateState_F1544_1120_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases Among Women Aged 15 (2).csv")
+PSSyph_RateState2_F_20_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases Among Women Aged 15 (3).csv")
+PSSyph_RateState_F_20_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases Among Women by State Un.csv")
+PSSyph_RateAgeGroupSex_20_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by Age Group and Sex Un.csv")
+PSSyph_RateCounty_20_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by County United States.csv")
+PSSyph_RateRace_1620_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by Race Hispanic Et (1).csv")
+PSSyph_RateRaceSex_20_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by Race Hispanic Et (2).csv")
+PSSyph_RateRegion_1120_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by Region United States.csv")
+#PSSyph_RateRatioSex_9020_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by Sex and Male-to-Fema2.csv")
+PSSyph_RateSex_1120_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by Sex United States 20.csv")
+PSSyph_RateState_20_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by State United Sta (1).csv")
+PSSyph_RateState_11and20_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by State United Sta (2).csv")
+PSSyph_RateState_1120_CDC = read_csv("Primary and Secondary Syphilis - Rates of Reported Cases by State United Sta (3).csv")
+PSSyph_PercentWeek_1920_CDC = read_csv("Primary and Secondary Syphilis - Reported 2020 Cases as a Percentage of 2019 by .csv")
+PSSyph_CaseReportSexPartner__M_1120_CDC = read_csv("Primary and Secondary Syphilis - Reported Cases among Men by Reporting Source an.csv")
+PSSyph_CasesMSMHIV_M_1120_CDC = read_csv("Primary and Secondary Syphilis - Reported Cases Among Men Who Have Sex with Men .csv")
+PSSyph_CasesUnknownSexPartnerHIV_M_1120_CDC = read_csv("Primary and Secondary Syphilis - Reported Cases Among Men with Unknown Sex of Se.csv")
+PSSyph_CasesSexPartnersHIV_FM_1120_CDC = read_csv("Primary and Secondary Syphilis - Reported Cases Among Women and Men Who Have Sex.csv")
+PSSyph_CasesSexPartners_1620_CDC = read_csv("Primary and Secondary Syphilis - Reported Cases by Sex and Sex of Sex Partners U.csv")
+PSSyph_CasesSexPartnersHIV_20_CDC = read_csv("Primary and Secondary Syphilis - Reported Cases by Sex Sex of Sex Partners and H.csv")
+PSSyph_CasesSexPartnersRace_20_CDC = read_csv("Primary and Secondary Syphilis - Reported Cases by Sex Sex of Sex Partners and R.csv")
+Syph_RateStage_4120_CDC = read_csv("Syphilis - Rates of Reported Cases by Stage of Infection United States 1941-2020.csv")
+Syph_RateStage_1120_CDC = read_csv("Syphilis - Rates of Reported Cases by Stage of Infection United States 2011-2020.csv")
+Syph_RateState1_F1544_1120_CDC = read_csv("Syphilis (All Stages) - Rates of Reported Cases Among Women Aged 15-44 Years (1).csv")
+Syph_RateState2_F1544_1120_CDC = read_csv("Syphilis (All Stages) - Rates of Reported Cases Among Women Aged 15-44 Years (2).csv")
+Syph_CaseCounty_F1544_11and20_CDC = read_csv("Syphilis (All Stages) - Rates of Reported Cases Among Women Aged 15-44 Years (3).csv")
+Syph_CaseCounty_F1544_1120_CDC = read_csv("Syphilis (All Stages) - Rates of Reported Cases Among Women Aged 15-44 Years (4).csv")
+Syph_PercentWeek_1920_CDC = read_csv("Syphilis (All Stages) - Reported 2020 Cases as a Percentage of 2019 by MMWR Week.csv")
+Syph_CaseBirthYear_1620_CDC = read_csv("Syphilis- Reported Cases of Syphilis (All Stages) among Pregnant Women and Repor.csv")
+```
+
+```{r import Gonorrhea csv 2020, message=FALSE}
+#Gonorrhea
+Gono_DistributionDrugs_8820_CDC = read_csv("Distribution of Primary Antimicrobial Drugs Used to Treat Gonorrhea Among Partic2.csv")
+Gono_ProportionSexPartnersJurisdiction_20_CDC = read_csv("Estimated Proportion of Gonorrhea Cases by Sex and Sex of Sex Partners and Juris.csv")
+Gono_ProportionTreatedJurisdiction_20_CDC = read_csv("Gonorrhea - Estimated Proportion of Cases Treated with Recommended Regimen by Ju.csv")
+Gono_ProportionPositiveSexPartners_20_CDC = read_csv("Gonorrhea - Estimated Proportion of Cases Treated with Recommended Regimen by Ju1.csv")
+Gono_RateRaceSex_20_CDC = read_csv("Gonorrhea - Rate of Reported Cases by Race Hispanic Ethnicity and Sex United Sta.csv")
+Gono_RatioSexRaceRegion_20_CDC = read_csv("Gonorrhea - Rate Ratios by Sex Race Hispanic Ethnicity and Region United States .csv")
+Gono_RateState_M1524_20_CDC = read_csv("Gonorrhea - Rates of Reported Cases Among Men Aged 15-24 Years by State United S.csv")
+Gono_RateAgeGroup_M1544_1120_CDC = read_csv("Gonorrhea - Rates of Reported Cases Among Men Aged 15-44 Years by Age Group Unit.csv")
+Gono_RateState_F1524_20_CDC = read_csv("Gonorrhea - Rates of Reported Cases Among Women Aged 15-24 Years by State United.csv")
+Gono_RateAgeGroup_F1544_1120_CDC = read_csv("Gonorrhea - Rates of Reported Cases Among Women Aged 15-44 Years by Age Group Un.csv")
+Gono_RateState_F_20_CDC = read_csv("Gonorrhea - Rates of Reported Cases Among Women by State United States and Terri.csv")
+Gono_RateAgeGroupSex_20_CDC = read_csv("Gonorrhea - Rates of Reported Cases by Age Group and Sex United States 2020 .csv")
+Gono_RateCounty_20_CDC = read_csv("Gonorrhea - Rates of Reported Cases by County United States 2020 .csv")
+Gono_RateRace_1620_CDC = read_csv("Gonorrhea - Rates of Reported Cases by Race Hispanic Ethnicity United States 201.csv")
+Gono_RateRegion_1120_CDC = read_csv("Gonorrhea - Rates of Reported Cases by Region United States 2011-2020 .csv")
+Gono_RateSex_1120_CDC = read_csv("Gonorrhea - Rates of Reported Cases by Sex United States 2011-2020 .csv")
+Gono_RateState_11and20_CDC = read_csv("Gonorrhea - Rates of Reported Cases by State United States and Territories 2011 .csv")
+Gono_RateState_1120_CDC = read_csv("Gonorrhea - Rates of Reported Cases by State United States and Territories 2011-.csv")
+Gono_RateState_20_CDC = read_csv("Gonorrhea - Rates of Reported Cases by State United States and Territories 2020 .csv")
+Gono_RateYear_4120_CDC = read_csv("Gonorrhea - Rates of Reported Cases by Year United States 1941-2020 .csv")
+Gono_PercentWeek_1920_CDC = read_csv("Gonorrhea - Reported 2020 Cases as a Percentage of 2019 by MMWR Week United Stat.csv")
+Gono_CaseReportSourceSex_1120_CDC = read_csv("Gonorrhea - Reported Cases by Reporting Source and Sex United States 2011-2020 .csv")
+#Neisseria gonorrhoeae
+NGono_DistributionCeftYear_1620_CDC = read_csv("Neisseria gonorrhoeae - Distribution of Ceftriaxone Minimum Inhibitory Concentra.csv")
+NGono_DistributionGentYear_1620_CDC = read_csv("Neisseria gonorrhoeae - Distribution of Gentamicin Minimum Inhibitory Concentrat2.csv")
+NGono_PercentMIC_1120_CDC = read_csv("Neisseria gonorrhoeae - Percentage of Isolates with Elevated Minimum Inhibitory 2.csv")
+NGono_PercentMSM_8920_CDC = read_csv("Neisseria gonorrhoeae - Percentage of Urethral Isolates Obtained from MSM Attend2.csv")
+NGono_PercentSexPartners_1120_CSV = read_csv("Neisseria gonorrhoeae - Percentage of Urethral Isolates with Elevated Minimum In2.csv")
+NGono_PrevalenceMIC_0020_CDC = read_csv("Neisseria gonorrhoeae - Prevalence of Tetracycline Penicillin or Ciprofloxacin R.csv")
+NGono_ResistanceMIC_20_CDC = read_csv("Resistance or Elevated Minimum Inhibitory Concentration (MIC) Patterns of Neisse2.csv")
+#Multiple
+Mult_ProportionHIV_20_CDC = read_csv("Proportion of MSM with Primary and Secondary Syphilis Urogenital Gonorrhea or Ur.csv")
+```
+
+
+## binding and plotting 2020 data.
+
+```{r Visualize CSyph_RateBirthYear_4120_CDC}
+ggplot(CSyph_RateBirthYear_4120_CDC, aes(x=Year, y=Rate)) +
+  geom_point() +
+  theme_classic() 
+```
+#Combine like data sets
+
+*STD_PercentWeek_20_CDC
+```{r bind STD_PercentWeek_20_CDC}
+STD_PercentWeek_20_CDC = rbind(Chlam_PercentWeek_1920_CDC, Gono_PercentWeek_1920_CDC, PSSyph_PercentWeek_1920_CDC, Syph_PercentWeek_1920_CDC)
+```
+
+```{r Visualize STD_PercentWeek_20_CDC}
+ggplot(STD_PercentWeek_20_CDC, aes(x=Week, y=Percent)) +
+  geom_line(aes(linetype = STD)) +
+  theme_classic() + xlab("Week Number") + ylab("STD Percent")
+
+```
+
+week_plot = ggplot(STD_PercentWeek_20_CDC, aes(x=Week, y=Percent, color = STD)) +
+  geom_line(aes()) +
+  theme_classic() + xlab("Week Number") + ylab("STD Case Percent") + scale_color_manual(values=c('Red','Green','Black','Purple'))
+  
+new_week_plot = week_plot + theme(axis.line = element_line(colour = "black", 
+                      size = 1, linetype = "solid"))
+
+print(new_week_plot + labs(y = "STD Case Percent", x = "Week Number"))
+
+*STD_RateState_20_CDC
+Changing columns to be one word. State name, State usps, state fips, rate category.
+```{r bind STD_RateState_20_CDC}
+STD_RateState_20_CDC = rbind(Chlam_RateState_20_CDC, Gono_RateState_20_CDC, PSSyph_RateState_20_CDC)
+
+colnames(STD_RateState_20_CDC) <- c("STD", "Year", "State", "USPS", "FIPS", "Rate", "Category")
+```
+Cannot combine 19 and 20 RateState due to difference in columns. 
+
+*STD_RateRace_1620_CDC
+```{r bind STD_RateRace_1620_CDC}
+STD_RateRace_1620_CDC = rbind(Chlam_RateRace_1620_CDC, Gono_RateRace_1620_CDC, PSSyph_RateRace_1620_CDC)
+```
+
+```{r Visualize STD_RateRace_1620_CDC}
+ggplot(STD_RateRace_1620_CDC, aes(x=STD, y=Rate, color=Race)) +
+  geom_boxplot() +
+  theme_classic() 
+```
+
+*STD_RateRaceSex_20_CDC
+```{r bind STD_RateRaceSex_20_CDC}
+STD_RateRaceSex_20_CDC = rbind(Chlam_RateRaceSex_20_CDC, Gono_RateRaceSex_20_CDC, PSSyph_RateRaceSex_20_CDC)
+
+colnames(STD_RateRaceSex_20_CDC) <- c("STD", "Year", "Race", "Sex", "Rate")
+```
+
+```{r Visualize STD_RateRaceSex_20_CDC}
+ggplot(STD_RateRaceSex_20_CDC, aes(x=STD, y=Rate, color=Race)) +
+  geom_boxplot() +
+  theme_classic() 
+```
+
+*STD_RateYear_4120_CDC
+```{r bind STD_RateYear_4120_CDC}
+STD_RateYear_4120_CDC = rbind(CSyph_RateBirthYear_4120_CDC, Gono_RateYear_4120_CDC,Syph_RateStage_4120_CDC)
+```
+add chalm data that is 84-2020
+
+```{r bind STD_RateYear_418420_CDC}
+STD_RateYear_418420_CDC = rbind(STD_RateYear_4120_CDC, Chlam_RateYear_8420_CDC)
+```
+
+
+```{r plot STD_RateYear_4120_CDC}
+ggplot(data = STD_RateYear_418420_CDC, aes(x = Year, y = Rate, col)) +
+  geom_line(aes(linetype = STD)) + theme_classic()
+```
+
+year_plot = ggplot(data = STD_RateYear_418420_CDC, aes(x = Year, y = Rate, color = STD)) +
+  geom_line(aes()) + theme_classic() + scale_color_manual(values=c('Green','Purple','Red','Black', 'Grey', 'Orange', 'Black'))
+  
+new_year_plot = year_plot + theme(axis.line = element_line(colour = "black", 
+                      size = 1, linetype = "solid"))
+
+print(new_year_plot + labs(y = "Rate per 100,000", x = "Year"))
+
+* STD_RateRegion_1120_CDC
+```{r bindrateregion}
+STD_RateRegion_1120_CDC = rbind(Chlam_RateRegion_1120_CDC, Gono_RateRegion_1120_CDC, PSSyph_RateRegion_1120_CDC)
+```
+
+```{r }
+ggplot(STD_RateRegion_1120_CDC, aes(x=STD, y=Rate, color=Region)) +
+  geom_line() +
+  theme_classic() 
+```
+
+```{r new plotting a plot}
+ggplot(STD_RateRegion_1120_CDC, aes(x=Year, y=Rate)) +
+  geom_line(aes(linetype = Region)) + theme_classic() + facet_grid(~STD)
+```
+
+
+
+region_plot_new = ggplot(STD_RateRegion_1120_CDC, aes(x=Year, y=Rate, color = Region)) + geom_line(aes()) + theme_classic() + facet_grid(~STD) + scale_color_manual(values=c('Green','Purple','Red','Black'))
+  
+new_region_plot = region_plot_new + theme( axis.line = element_line(colour = "black", 
+                      size = 1, linetype = "solid"))
+
+print(new_region_plot + labs(y = "Rate per 100,000", x = "Year"))
+
+*STD_RateState_1524_20_CDC
+```{r bind STD_RateState_1524_20_CDC}
+STD_RateState_1524_20_CDC = rbind(Chlam_RateState_F1524_20_CDC, Chlam_RateState_M1524_20_CDC, Gono_RateState_F1524_20_CDC, Gono_RateState_M1524_20_CDC)
+
+colnames(STD_RateState_1524_20_CDC) <- c("STD", "Sex", "Age", "Year", "State", "USPS", "FIPS", "Rate", "Category")
+```
+
+
+
+```{r eda}
+simple.eda(STD_PercentWeek_20_CDC$Percent)
+```
+
+```{r}
+summary(STD_RateRaceSex_20_CDC)
+summary(STD_RateRaceSex_20_CDC$Rate)
+```
+
+```{r }
+simple.eda(STD_RateCounty_19_CDC$Rate)
+simple.eda(STD_RateRace_1519_CDC$Rate)
+simple.eda(STD_RateRace_1620_CDC$Rate)
+simple.eda(STD_RateRaceSex_20_CDC$Rate)
+```
+
+
+```{r }
+ggplot(STD_ReportSource_1019_CDC, aes(x=Sex, y=Cases, color= Source)) +
+  geom_boxplot() +
+  theme_classic() 
+```
+
+
+```{r making a pot I saw on youtube}
+ggplot(data = STD_PercentWeek_20_CDC, aes(x = Week, y = Percent)) +
+  geom_point() + facet_grid(~STD)
+```
+
+
+```{r plotting some more times}
+ggplot(data = STD_RateAgeGroup_1544_1019_CDC, aes(x = Year, y = Cases)) +
+  geom_boxplot(aes(linetype = Sex)) + theme_classic() + facet_grid(~STD)
+```
+
+sex_plot = ggplot(data = STD_RateAgeGroup_1544_1019_CDC, aes(x = Year, y = Cases, color = Sex)) +
+  geom_boxplot(aes()) + theme_classic() + facet_grid(~STD) + scale_color_manual(values=c('Red','Blue'))
+
+new_sex_plot = sex_plot + theme( axis.line = element_line(colour = "black", 
+                      size = 1, linetype = "solid"))
+
+print(new_sex_plot + labs(y = "Cases", x = "Year"))
+
+*STD_RateAgeSex_20_CDC
+```{r bind STD_RateAgeSex_20_CDC}
+STD_RateAgeSex_20_CDC = rbind(Chlam_RateAgeSex_20_CDC, Gono_RateAgeGroupSex_20_CDC, PSSyph_RateAgeGroupSex_20_CDC)
+```
+
+*STD_RateSex_1120_CDC
+```{r bind STD_RateSex_1120_CDC}
+STD_RateSex_1120_CDC = rbind(Chlam_RateSex_1120_CDC, Gono_RateSex_1120_CDC, PSSyph_RateSex_1120_CDC)
+```
+
+```{r plot ratesex_1120}
+ggplot(data = STD_RateSex_1120_CDC, aes(x = Year, y = Rate, color = STD)) +
+  geom_line() + theme_classic() + facet_grid(~Sex)
+```
+
+*STD_RateCounty_20_CDC
+Change names of State FIPS and County FIPS and Rate Category.
+```{r bind STD_RateCounty_20_CDC}
+STD_RateCounty_20_CDC = rbind(Chlam_RateCounty_20_CDC, Gono_RateCounty_20_CDC, PSSyph_RateCounty_20_CDC)
+
+colnames(STD_RateCounty_20_CDC) <- c("STD", "Year", "State", "County", "State_FIPS", "County_FIPS", "Rate", "Category")
+```
+
+```{r plot county_20}
+ggplot(data = STD_RateCounty_20_CDC, aes(x = State_FIPS, y = Rate, color = STD)) +
+  geom_line() + theme_classic()
+```
+
+``` {r plot drug gono distribution}
+#ggplot(data = Gono_DistributionDrugs_8820_CDC, aes(x = Year, y = Percent, color = Treatment)) +
+#  geom_point() + facet_grid(~Treatment)
+ggplot(data = Gono_DistributionDrugs_8820_CDC, aes(x = Year, y = Percent, color = Treatment)) +
+  geom_line() + theme_classic()
+```
+
+``` {r plot STD_RateRace_1519_CDC line}
+ggplot(data = STD_RateRace_1519_CDC, aes(x = Year, y = Rate)) +
+  geom_line(aes(linetype = Race)) + facet_grid(~STD) + theme_classic() 
+```
+
+race_plot = ggplot(data = STD_RateRace_1519_CDC, aes(x = Year, y = Rate, color = Race)) +
+  geom_line(aes()) + facet_grid(~STD) + theme_classic() + scale_color_manual(values=c('Red','Blue','Green','Orange', '#009E73', 'Black', '#CC79A7'))
+  
+new_race_plot = race_plot + theme( axis.line = element_line(colour = "black", 
+                      size = 1, linetype = "solid"))
+
+print(new_race_plot + labs(y = "Rate per 100,000", x = "Year"))
+
+
+*STD_RateState_11and20_CDC
+```{r }
+STD_RateState_11and20_CDC = rbind(Chlam_RateState_11and20_CDC,Gono_RateState_11and20_CDC,CSyph_RateState_11and20_CDC,PSSyph_RateState_11and20_CDC)
+
+colnames(STD_RateState_11and20_CDC) <- c("STD", "Year", "State", "USPS", "FIPS", "Rate", "Category")
+```
+
+```{r}
+ggplot(data = STD_RateState_11and20_CDC, aes(x = STD, y = Rate)) +
+  geom_boxplot() + theme_classic()
+```
+
+*STD_RateState_1120_CDC
+```{r }
+STD_RateState_1120_CDC = rbind(Chlam_RateState_1120_CDC,Gono_RateState_1120_CDC,CSyph_RateState_1120_CDC,PSSyph_RateState_1120_CDC)
+
+colnames(STD_RateState_1120_CDC) <- c("STD", "Year", "State", "USPS", "FIPS", "Rate", "Category")
+```
+
+
+
+# Quantitative Analysis
+
+```{r summary five}
+summary(STD_RateAgeGroup_1544_1019_CDC)
+summary(STD_RateRegion_1120_CDC)
+summary(STD_RateYear_418420_CDC)
+summary(STD_RateState_11and20_CDC)
+summary(STD_RateRace_1519_CDC)
+```
+
+```{r summary specific}
+summary(STD_RateAgeGroup_1544_1019_CDC$Cases)
+summary(STD_RateAgeGroup_1544_1019_CDC$Rate)
+summary(STD_RateRegion_1120_CDC$Rate)
+summary(STD_RateYear_418420_CDC$Rate)
+summary(STD_RateState_11and20_CDC$Rate)
+summary(STD_RateRace_1519_CDC$Cases)
+summary(STD_RateRace_1519_CDC$Rate)
+```
+
+vis_dat(STD_RateState_11and20_CDC)
+
+*shapiro tests
+``` {r }
+
+```
+
+
+```{r get table STD_RateRaceSex_20_CDC}
+
+```
+
+#
+# This is a Shiny web application. You can run the application by clicking
+# the 'Run App' button above.
+#
+# Find out more about building applications with Shiny here:
+#
+#    http://shiny.rstudio.com/
+#
+```{r}
+library(shiny)
+```
+
+library(shiny)
+
+# Define UI for application that draws a histogram
+```{r}
+ui <- fluidPage(
+
+    # Application title
+    titlePanel("Old Faithful Eruptions"),
+
+    # Sidebar with a slider input for number of bins 
+    sidebarLayout(
+        sidebarPanel(
+            sliderInput("bins",
+                        "Number of bins:",
+                        min = 1,
+                        max = 50,
+                        value = 30)
+        ),
+
+        # Show a plot of the generated distribution
+        mainPanel(
+           plotOutput("distPlot")
+        )
+    )
+)
+```
+
+ui <- fluidPage(
+
+    # Application title
+    titlePanel("Old Faithful Eruptions"),
+
+    # Sidebar with a slider input for number of bins 
+    sidebarLayout(
+        sidebarPanel(
+            sliderInput("bins",
+                        "Number of bins:",
+                        min = 1,
+                        max = 50,
+                        value = 30)
+        ),
+
+        # Show a plot of the generated distribution
+        mainPanel(
+           plotOutput("distPlot")
+        )
+    )
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+
+    output$distPlot <- renderPlot({
+        # generate bins based on input$bins from ui.R
+        x    <- faithful[, 2]
+        bins <- seq(min(x), max(x), length.out = input$bins + 1)
+
+        # draw the histogram with the specified number of bins
+        hist(x, breaks = bins, col = 'darkgray', border = 'white',
+             xlab = 'Waiting time to next eruption (in mins)',
+             main = 'Histogram of waiting times')
+    })
+}
+
+# Run the application
+```{r}
+shinyApp(ui = ui, server = server)
+```
+
+shinyApp(ui = ui, server = server)
+
